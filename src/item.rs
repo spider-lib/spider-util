@@ -1,14 +1,23 @@
-//! Data structures for scraped items and spider output in `spider-lib`.
+//! Data structures for scraped items in `spider-lib`.
 //!
-//! This module defines the `ScrapedItem` trait, which is the core abstraction
-//! for any data extracted by a web spider. Implementors of this trait define
-//! the shape of the data they wish to collect.
+//! Defines the `ScrapedItem` trait and `ParseOutput` for spider results.
 //!
-//! Additionally, the `ParseOutput` struct is provided as the standard return type
-//! for a spider's `parse` method. It encapsulates both the `ScrapedItem`s
-//! found on a page and any new `Request`s that should be scheduled for crawling.
-//! This allows spiders to not only extract data but also to discover and
-//! follow new links within the same processing step.
+//! ## Example
+//!
+//! ```rust,ignore
+//! use spider_util::item::{ScrapedItem, ParseOutput};
+//!
+//! #[spider_macro::scraped_item]
+//! struct Article {
+//!     title: String,
+//!     content: String,
+//! }
+//!
+//! // In your spider's parse method:
+//! // let mut output = ParseOutput::new();
+//! // output.add_item(Article { title: "...", content: "..." });
+//! // Ok(output)
+//! ```
 
 use crate::request::Request;
 use serde_json::Value;
