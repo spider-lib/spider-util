@@ -181,11 +181,6 @@ let normalized = utils::normalize_origin(&request);
 let fingerprint = request.fingerprint();
 ```
 
-## Dependencies
-
-This crate depends on:
-- Various external crates for specific functionality (url for URL parsing, serde for serialization, etc.)
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
