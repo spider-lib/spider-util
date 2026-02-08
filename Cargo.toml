@@ -7,6 +7,7 @@ license = "MIT"
 documentation = "https://docs.rs/spider-util"
 homepage = "https://github.com/spider-lib/spider-util"
 repository = "https://github.com/spider-lib/spider-util"
+readme = "README.md"
 
 [dependencies]
 bincode = { version = "1.3" }
