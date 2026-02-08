@@ -2,6 +2,11 @@
 name = "spider-util"
 version = "0.1.1"
 edition = "2024"
+description = "Shared utility functions and types for the spider-lib ecosystem"
+license = "MIT"
+documentation = "https://docs.rs/spider-util"
+homepage = "https://github.com/spider-lib/spider-util"
+repository = "https://github.com/spider-lib/spider-util"
 
 [dependencies]
 bincode = { version = "1.3" }
