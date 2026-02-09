@@ -67,4 +67,3 @@ impl BloomFilter {
         combined_hash % self.num_bits
     }
 }
-
