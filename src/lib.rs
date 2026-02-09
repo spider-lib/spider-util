@@ -25,5 +25,5 @@ pub mod request;
 pub mod response;
 pub mod response_type;
 pub mod selector_cache;
-pub mod streaming_response;
+pub mod stream_response;
 pub mod utils;

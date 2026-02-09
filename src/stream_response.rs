@@ -1,6 +1,6 @@
-//! Streaming response implementation for memory-efficient web scraping.
+//! Stream response implementation for memory-efficient web scraping.
 //!
-//! This module provides streaming response capabilities that allow processing
+//! This module provides stream response capabilities that allow processing
 //! of large responses without loading the entire body into memory at once.
 
 use crate::response::{Link, LinkType, Response};
@@ -17,9 +17,9 @@ use url::Url;
 
 use std::fmt;
 
-/// A streaming response that allows processing of large responses without
+/// A stream response that allows processing of large responses without
 /// loading the entire body into memory at once.
-pub struct StreamingResponse {
+pub struct StreamResponse {
     /// The final URL of the response after any redirects.
     pub url: Url,
     /// The HTTP status code of the response.
@@ -36,9 +36,9 @@ pub struct StreamingResponse {
     pub cached: bool,
 }
 
-impl fmt::Debug for StreamingResponse {
+impl fmt::Debug for StreamResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("StreamingResponse")
+        f.debug_struct("StreamResponse")
             .field("url", &self.url)
             .field("status", &self.status)
             .field("headers", &self.headers)
@@ -48,8 +48,8 @@ impl fmt::Debug for StreamingResponse {
     }
 }
 
-impl StreamingResponse {
-    /// Converts the streaming response to a regular response by collecting all body chunks.
+impl StreamResponse {
+    /// Converts the stream response to a regular response by collecting all body chunks.
     /// This defeats the purpose of streaming but provides compatibility with existing code.
     pub async fn to_response(self) -> Result<Response, std::io::Error> {
         let mut body_bytes = Vec::new();
@@ -71,9 +71,9 @@ impl StreamingResponse {
         })
     }
 
-    /// Provides a way to parse the streaming response as HTML by collecting chunks
+    /// Provides a way to parse the stream response as HTML by collecting chunks
     /// until enough data is available for parsing.
-    /// Note: This consumes the streaming response to collect all data.
+    /// Note: This consumes the stream response to collect all data.
     pub async fn into_html(self) -> Result<Html, std::io::Error> {
         let mut body_bytes = Vec::new();
         let mut stream = self.body_stream;
@@ -89,8 +89,8 @@ impl StreamingResponse {
         Ok(Html::parse_document(body_str))
     }
 
-    /// Extracts links from the streaming response by consuming and parsing the content.
-    /// Note: This consumes the streaming response to collect all data.
+    /// Extracts links from the stream response by consuming and parsing the content.
+    /// Note: This consumes the stream response to collect all data.
     pub async fn into_links(self) -> Result<Vec<Link>, std::io::Error> {
         let base_url = self.url.clone();
         let html = self.into_html().await?;
