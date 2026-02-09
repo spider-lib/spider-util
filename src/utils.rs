@@ -5,9 +5,9 @@
 
 use psl::{List, Psl};
 use scraper::Selector;
-use url::Url;
 use std::fs;
 use std::path::Path;
+use url::Url;
 
 use crate::error::SpiderError;
 use crate::request::Request;
@@ -63,3 +63,4 @@ impl ToSelector for String {
         Selector::parse(self).map_err(|e| SpiderError::HtmlParseError(e.to_string()))
     }
 }
+

@@ -12,13 +12,14 @@
 //!   of hyperlinks found within the response content.
 
 use crate::request::Request;
+use crate::selector_cache::get_cached_selector;
 use crate::utils;
 use bytes::Bytes;
 use dashmap::{DashMap, DashSet};
 use linkify::{LinkFinder, LinkKind};
 use reqwest::StatusCode;
 use reqwest::header::HeaderMap;
-use scraper::{Html, Selector};
+use scraper::Html;
 use serde::de::DeserializeOwned;
 use serde_json::{self, Value};
 use std::{borrow::Cow, str::Utf8Error, str::from_utf8};
@@ -51,7 +52,7 @@ pub struct Link {
 }
 
 /// Represents an HTTP response received from a server.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Response {
     /// The final URL of the response after any redirects.
     pub url: Url,
@@ -67,6 +68,20 @@ pub struct Response {
     pub meta: DashMap<Cow<'static, str>, Value>,
     /// Indicates if the response was served from a cache.
     pub cached: bool,
+}
+
+impl Clone for Response {
+    fn clone(&self) -> Self {
+        Response {
+            url: self.url.clone(),
+            status: self.status,
+            headers: self.headers.clone(),
+            body: self.body.clone(),
+            request_url: self.request_url.clone(),
+            meta: self.meta.clone(),
+            cached: self.cached,
+        }
+    }
 }
 
 impl Response {
@@ -88,11 +103,22 @@ impl Response {
         Ok(Html::parse_document(body_str))
     }
 
+    /// Lazily parses the response body as HTML, returning a closure that can be called when needed.
+    pub fn lazy_html(&self) -> Result<impl Fn() -> Result<Html, Utf8Error> + '_, Utf8Error> {
+        let body_bytes = &self.body;
+        Ok(move || {
+            let body_str = from_utf8(body_bytes)?;
+            Ok(Html::parse_document(body_str))
+        })
+    }
+
     /// Extracts all unique, same-site links from the response body.
     pub fn links(&self) -> DashSet<Link> {
         let links = DashSet::new();
 
-        if let Ok(html) = self.to_html() {
+        if let Ok(html_fn) = self.lazy_html()
+            && let Ok(html) = html_fn()
+        {
             let selectors = vec![
                 ("a[href]", "href"),
                 ("link[href]", "href"),
@@ -104,7 +130,7 @@ impl Response {
             ];
 
             for (selector_str, attr_name) in selectors {
-                if let Ok(selector) = Selector::parse(selector_str) {
+                if let Some(selector) = get_cached_selector(selector_str) {
                     for element in html.select(&selector) {
                         if let Some(attr_value) = element.value().attr(attr_name)
                             && let Ok(url) = self.url.join(attr_value)
@@ -152,5 +178,26 @@ impl Response {
 
         links
     }
-}
 
+    /// Converts this response to a streaming response.
+    #[cfg(feature = "streaming")]
+    pub async fn to_streaming_response(
+        &self,
+    ) -> Result<crate::streaming_response::StreamingResponse, std::io::Error> {
+        use futures_util::stream;
+        use std::io;
+
+        let body_chunk = self.body.clone();
+        let body_stream = stream::iter(vec![Ok::<bytes::Bytes, io::Error>(body_chunk)]);
+
+        Ok(crate::streaming_response::StreamingResponse {
+            url: self.url.clone(),
+            status: self.status,
+            headers: self.headers.clone(),
+            body_stream: Box::pin(body_stream),
+            request_url: self.request_url.clone(),
+            meta: self.meta.clone(),
+            cached: self.cached,
+        })
+    }
+}

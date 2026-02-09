@@ -364,4 +364,3 @@ impl Request {
         format!("{:x}", hasher.finish())
     }
 }
-
