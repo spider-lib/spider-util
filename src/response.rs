@@ -179,25 +179,4 @@ impl Response {
         links
     }
 
-    /// Converts this response to a stream response.
-    #[cfg(feature = "stream")]
-    pub async fn to_stream_response(
-        &self,
-    ) -> Result<crate::stream_response::StreamResponse, std::io::Error> {
-        use futures_util::stream;
-        use std::io;
-
-        let body_chunk = self.body.clone();
-        let body_stream = stream::iter(vec![Ok::<bytes::Bytes, io::Error>(body_chunk)]);
-
-        Ok(crate::stream_response::StreamResponse {
-            url: self.url.clone(),
-            status: self.status,
-            headers: self.headers.clone(),
-            body_stream: Box::pin(body_stream),
-            request_url: self.request_url.clone(),
-            meta: self.meta.clone(),
-            cached: self.cached,
-        })
-    }
 }

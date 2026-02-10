@@ -23,7 +23,5 @@ pub mod error;
 pub mod item;
 pub mod request;
 pub mod response;
-pub mod response_type;
 pub mod selector_cache;
-pub mod stream_response;
 pub mod utils;
