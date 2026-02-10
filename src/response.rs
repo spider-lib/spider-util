@@ -70,19 +70,6 @@ pub struct Response {
     pub cached: bool,
 }
 
-impl Clone for Response {
-    fn clone(&self) -> Self {
-        Response {
-            url: self.url.clone(),
-            status: self.status,
-            headers: self.headers.clone(),
-            body: self.body.clone(),
-            request_url: self.request_url.clone(),
-            meta: self.meta.clone(),
-            cached: self.cached,
-        }
-    }
-}
 
 impl Response {
     /// Reconstructs the original `Request` that led to this response.
@@ -179,4 +166,18 @@ impl Response {
         links
     }
 
+}
+
+impl Clone for Response {
+    fn clone(&self) -> Self {
+        Response {
+            url: self.url.clone(),
+            status: self.status,
+            headers: self.headers.clone(),
+            body: self.body.clone(),
+            request_url: self.request_url.clone(),
+            meta: self.meta.clone(),
+            cached: self.cached,
+        }
+    }
 }
