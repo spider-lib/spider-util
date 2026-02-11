@@ -1,6 +1,6 @@
 [package]
 name = "spider-util"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2024"
 description = "Shared utility functions and types for the spider-lib ecosystem"
 license = "MIT"
