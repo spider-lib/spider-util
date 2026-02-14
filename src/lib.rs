@@ -21,6 +21,7 @@
 pub mod bloom_filter;
 pub mod error;
 pub mod item;
+pub mod metrics;
 pub mod request;
 pub mod response;
 pub mod selector_cache;
